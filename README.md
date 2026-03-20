@@ -7,3 +7,4 @@ In particular
 -- Functionality reviews
 -- Security reviews to find security flaws
 -- Securty reviews to find AI originated threats
+* How to create SW factories that can coordinate work across several repositories within the same product
