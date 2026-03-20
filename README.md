@@ -6,5 +6,5 @@ In particular
 * How to create auto reviews for AI generated code
 -- Functionality reviews
 -- Security reviews to find security flaws
--- Securty reviews to find AI originated threats
+-- Security reviews to find AI originated threats
 * How to create SW factories that can coordinate work across several repositories within the same product
