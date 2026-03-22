@@ -10,7 +10,7 @@ ai-coach/
       memory.py        # MemoryStore: read/write agent_state, progress, sessions
       skills.py        # SkillsCache: load and select relevant skill files
       agent.py         # CoachAgent: prompt assembly, Claude API call, memory update
-      sync.py          # top-level sync functions: sync_progress(), sync_skills()
+      sync.py          # RepoSync: progress push, skills pull/push
     interfaces/
       slack_bot.py     # Slack Bolt app: event listener, send messages
       cli.py           # CLI: readline loop
@@ -186,17 +186,17 @@ Tests (`test_scheduler.py`) — mock APScheduler or inject a fake clock:
 
 Goal: daily push of `progress.md` and pull/push of skill files.
 
-`sync.py` exposes two functions: `sync_progress(memory: MemoryStore, config)` and `sync_skills(skills: SkillsCache, config)`. Both use `subprocess` to call `git`; they are pure functions with no side effects beyond git operations.
+`sync.py` exposes a `RepoSync` class constructed with a `MemoryStore`, a `SkillsCache`, and a config. Both methods use `subprocess` to call `git` and have no side effects beyond git operations.
 
-- [ ] `sync_progress`: commits and pushes `memory/progress.md` to the configured remote repo
-- [ ] `sync_skills`: if write-back enabled, stages and pushes modified skill files first; then pulls from the skills remote
-- [ ] Both functions are no-ops (log and return) if the relevant repo URL is not configured
+- [ ] Implement `RepoSync.sync_progress()`: commits and pushes `memory/progress.md` to the configured remote repo
+- [ ] Implement `RepoSync.sync_skills()`: if write-back enabled, stages and pushes modified skill files first; then pulls from the skills remote
+- [ ] Both methods are no-ops (log and return) if the relevant repo URL is not configured
 
-Tests (`test_sync.py`) — mock `subprocess.run`:
+Tests (`test_sync.py`) — construct `RepoSync` with fakes; mock `subprocess.run`:
 - [ ] `sync_progress` runs the correct git commands with the correct remote
 - [ ] `sync_skills` pushes before pulling when write-back is enabled
 - [ ] `sync_skills` only pulls when write-back is disabled
-- [ ] Both functions skip gracefully when repo URL is absent
+- [ ] Both methods skip gracefully when repo URL is absent
 
 ---
 
