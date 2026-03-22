@@ -77,7 +77,7 @@ Goal: reliable, tested read/write layer for all memory files. Everything else bu
 - [ ] Implement `MemoryStore.load_progress() -> str` — reads `progress.md`
 - [ ] Implement `MemoryStore.save_progress(content: str)` — writes `progress.md`
 - [ ] Implement `MemoryStore.append_session_turn(date: str, role: str, content: str)` — appends a turn to `sessions/YYYY-MM-DD.json`, creating the file if needed
-- [ ] Implement `MemoryStore.load_pending_checkins() -> list[str]` and `clear_pending_checkins()` — simple queue in `config.json` or a dedicated `pending.json`
+- [ ] Implement `MemoryStore.load_pending_checkins() -> list[str]` and `clear_pending_checkins()` — simple queue stored in `memory/pending_checkins.json`; never written to `config.json`, which is declarative and Ansible-managed
 
 Tests (`test_memory.py`) — use `tmp_path` fixture throughout, no real filesystem side effects:
 - [ ] `load_agent_state` returns empty string when file absent
