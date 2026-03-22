@@ -174,11 +174,18 @@ Goal: proactive check-ins sent to Slack at the configured cadence.
 `scheduler.py` exposes a `start(agent: CoachAgent, send_message, config)` function that configures APScheduler and starts it in-process.
 
 - [ ] Schedule a job at the configured interval that calls `agent.checkin()` and passes the result to `send_message`
-- [ ] Read the interval from `config` on start; restart the job if the user changes the cadence at runtime
+- [ ] Read the interval from `config` on start
+- [ ] Define a clear flow for changing cadence at runtime:
+  - Slack / CLI interfaces parse a `set cadence` (or similar) command, validate the new interval (range, format), and surface it as a cadence-update request to `config.py`
+  - `config.py` exposes an `update_cadence(new_interval)` function that validates the value, then persists it atomically (write-then-rename `config.json`) and reports validation errors to the caller
+  - `scheduler.py` exposes an `update_cadence(new_interval)` hook that is called only after persistence succeeds; it compares old vs new interval and reschedules the job if it changed
+  - Scheduler reads and config writes are synchronised via a lock so there are no races between runtime cadence updates and scheduled job execution
 
 Tests (`test_scheduler.py`) — mock APScheduler or inject a fake clock:
-- [ ] Job is scheduled with the correct interval from config
+- [ ] Job is scheduled with the correct interval from config on start
 - [ ] Job calls `agent.checkin()` and forwards result to `send_message`
+- [ ] When cadence is updated via the update path, the existing job is rescheduled with the new interval
+- [ ] Invalid cadence values are rejected and do not change the running schedule
 
 ---
 
