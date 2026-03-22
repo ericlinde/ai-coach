@@ -26,7 +26,7 @@ ai-coach/
     test_scheduler.py
   ansible/
     site.yml                   # main playbook: runs provision → configure → deploy roles
-    ansible.cfg                # sets inventory default, disables host key checking for Fly
+    ansible.cfg                # sets inventory default and SSH options; manages Fly host keys via known_hosts (host key checking enabled)
     roles/
       provision/               # create Fly app and persistent volume if absent
       configure/               # write config.json to volume, set Fly secrets
