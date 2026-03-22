@@ -10,7 +10,7 @@ ai-coach/
       memory.py        # MemoryStore: read/write agent_state, progress, sessions
       skills.py        # SkillsCache: load and select relevant skill files
       agent.py         # CoachAgent: prompt assembly, Claude API call, memory update
-      sync.py          # RepoSync: progress push, skills pull/push
+      sync.py          # top-level sync functions: sync_progress(), sync_skills()
     interfaces/
       slack_bot.py     # Slack Bolt app: event listener, send messages
       cli.py           # CLI: readline loop
