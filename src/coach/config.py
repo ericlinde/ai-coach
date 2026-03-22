@@ -1,4 +1,5 @@
 import json
+import os
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
@@ -41,3 +42,22 @@ def load_config(path: Path) -> Config:
         progress_repo=data.get("progress_repo"),
         skills_repo=data.get("skills_repo"),
     )
+
+
+def update_cadence(config_path: Path, new_interval: str) -> None:
+    """Validate new_interval then atomically update checkin_frequency in config.json.
+
+    Raises InvalidCadenceError (imported from scheduler) if the interval is invalid.
+    The file is never modified if validation fails.
+    """
+    from .scheduler import parse_interval  # avoid circular import at module level
+
+    parse_interval(new_interval)  # raises InvalidCadenceError on bad value
+
+    config_path = Path(config_path)
+    data = json.loads(config_path.read_text())
+    data["checkin_frequency"] = new_interval
+
+    tmp_path = config_path.with_suffix(".json.tmp")
+    tmp_path.write_text(json.dumps(data, indent=2))
+    os.replace(tmp_path, config_path)
