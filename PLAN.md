@@ -214,7 +214,7 @@ Goal: the application starts correctly and any instance can be provisioned and d
 **Ansible playbook and roles:**
 - [ ] Write `ansible/site.yml`: runs three roles in order — `provision`, `configure`, `deploy`
 - [ ] Write `ansible/roles/provision`: use `command: flyctl apps list` to check existence before `flyctl apps create`; create a persistent volume for `/data` (holds `memory/` and `skills/`) if absent; idempotent
-- [ ] Write `ansible/roles/configure`: set Fly secrets (`SLACK_BOT_TOKEN`, `SLACK_APP_TOKEN`, `ANTHROPIC_API_KEY`) from Ansible vars; render `memory/config.json` from a Jinja2 template using inventory variables (`progress_repo`, `skills_repo`, `write_back`, `checkin_frequency`)
+- [ ] Write `ansible/roles/configure`: set Fly secrets (`SLACK_BOT_TOKEN`, `SLACK_APP_TOKEN`, `ANTHROPIC_API_KEY`) from Ansible vars; render `memory/config.json` from a Jinja2 template using inventory variables (`progress_repo`, `skills_repo`, `write_back`, `checkin_frequency`, `model_id`)
 - [ ] Write `ansible/roles/deploy`: run `flyctl deploy --app {{ fly_app }} --remote-only`
 - [ ] Write `ansible/inventory/owner.yml`: populate all instance variables for the owner's deployment
 - [ ] Write `ansible/ansible.cfg`: set default inventory, configure SSH settings for Fly
@@ -253,7 +253,7 @@ The README is written for humans. It calls out explicitly what must be done by h
 - [ ] **One-time: create a Slack app** — step-by-step: create app, enable Socket Mode, add bot scopes (`chat:write`, `im:history`, `im:write`), install to workspace, note the Bot Token and App Token
 - [ ] **One-time: create the skills repo** — create a new empty GitHub repo; note its clone URL
 - [ ] **One-time: create the progress repo** — create a new empty GitHub repo; note its clone URL
-- [ ] **One-time: populate the inventory file** — copy `ansible/inventory/owner.yml.example`, fill in `fly_app`, `progress_repo`, `skills_repo`, `write_back`, `checkin_frequency`
+- [ ] **One-time: populate the inventory file** — copy `ansible/inventory/owner.yml.example`, fill in `fly_app`, `progress_repo`, `skills_repo`, `write_back`, `checkin_frequency`, `model_id`
 - [ ] **One-time: deploy** — run `ansible-playbook ansible/site.yml -i ansible/inventory/owner.yml`; confirm the bot comes online in Slack
 - [ ] **One-time: configure GitHub Actions** — add the four secrets to the repo; from this point, every push to `main` deploys automatically
 - [ ] **Ongoing: how deployments work** — push to `main`; `deploy-owner.yml` triggers; Ansible provisions (no-ops if already done) and deploys

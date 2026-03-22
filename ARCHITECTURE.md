@@ -91,7 +91,7 @@ Two daily jobs:
 |---|---|
 | Messaging interface | Slack (Bolt SDK for Python) |
 | CLI interface | Python readline loop (runs on server via SSH, or locally) |
-| AI model | Claude API — claude-sonnet-4-6 |
+| AI model | Claude API — configurable model ID (e.g. `claude-sonnet-4-6`); set per instance in inventory |
 | Bot hosting | Fly.io — Amsterdam region (AMS), EU data residency |
 | Memory storage | Plain files (Markdown + JSON) on persistent Fly volume |
 | Skills storage | Plain Markdown files; canonical copy in owner's GitHub repo |
