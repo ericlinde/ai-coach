@@ -10,7 +10,7 @@ The coach is always accessible. The user can ask it questions at any time, and i
 
 ## 2. Users
 
-ai-coach serves a single developer: its owner. It is not a multi-tenant system and makes no provision for teams or shared access.
+Each deployment of ai-coach serves exactly one developer: its owner. It is not a multi-tenant system and makes no provision for teams or shared access. The software supports multiple independent deployments — one per person — but each deployment is strictly single-user.
 
 ---
 
