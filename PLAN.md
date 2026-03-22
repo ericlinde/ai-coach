@@ -156,7 +156,7 @@ Goal: a simple terminal loop that uses the same Coach Agent.
 
 `cli.py` exposes a `run(agent: CoachAgent)` function. It has no logic beyond the loop itself.
 
-- [ ] On start, fetch and print pending check-ins via `agent.checkin()` or the memory store's pending queue
+- [ ] On start, fetch and print pending check-ins from the memory store's pending queue (do not call `agent.checkin()` here — that generates a new prompt; the queue only contains check-ins already created by the scheduler)
 - [ ] Loop: print prompt, read line, call `agent.reply()`, print response
 - [ ] Exit cleanly on EOF (`Ctrl-D`) or the string `exit`
 
