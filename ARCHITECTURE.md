@@ -109,7 +109,7 @@ Two daily jobs:
 ### 4.1 User asks a question via Slack
 
 1. User sends a message to the coach in Slack.
-2. Slack delivers the event to the bot via webhook.
+2. Slack delivers the event to the bot over a WebSocket connection using Socket Mode.
 3. The coach agent loads `agent_state.md` and relevant skill files, then builds a prompt.
 4. The agent calls the Claude API and receives a coaching response.
 5. The bot sends the response back to the user in Slack.
