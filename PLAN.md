@@ -186,17 +186,19 @@ Tests (`test_scheduler.py`) — mock APScheduler or inject a fake clock:
 
 Goal: daily push of `progress.md` and pull/push of skill files.
 
-`sync.py` exposes a `RepoSync` class constructed with a `MemoryStore`, a `SkillsCache`, and a config. Both methods use `subprocess` to call `git` and have no side effects beyond git operations.
+`sync.py` exposes a `RepoSync` class constructed with a `MemoryStore`, a `SkillsCache`, and a config. Both methods use `subprocess` to call `git` and encapsulate all git interaction — including error handling and basic retry/backoff for transient push/pull failures.
 
 - [ ] Implement `RepoSync.sync_progress()`: commits and pushes `memory/progress.md` to the configured remote repo
 - [ ] Implement `RepoSync.sync_skills()`: if write-back enabled, stages and pushes modified skill files first; then pulls from the skills remote
 - [ ] Both methods are no-ops (log and return) if the relevant repo URL is not configured
+- [ ] Both methods log a clear error and retry with exponential backoff on transient git failures (network/credential errors); give up and log after a fixed number of attempts rather than blocking indefinitely
 
 Tests (`test_sync.py`) — construct `RepoSync` with fakes; mock `subprocess.run`:
 - [ ] `sync_progress` runs the correct git commands with the correct remote
 - [ ] `sync_skills` pushes before pulling when write-back is enabled
 - [ ] `sync_skills` only pulls when write-back is disabled
 - [ ] Both methods skip gracefully when repo URL is absent
+- [ ] Transient failure triggers retry; permanent failure logs and exits cleanly
 
 ---
 
