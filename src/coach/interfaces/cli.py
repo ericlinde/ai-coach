@@ -7,6 +7,8 @@ def run(agent: CoachAgent, memory: MemoryStore) -> None:
     checkins = memory.load_pending_checkins()
     for item in checkins:
         print(item)
+    if checkins:
+        memory.clear_pending_checkins()
 
     while True:
         try:

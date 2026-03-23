@@ -6,7 +6,7 @@
 
 > `_run_git()` only handles `subprocess.CalledProcessError`. If `git` is not installed or `cwd` doesn't exist, `subprocess.run()` will raise `FileNotFoundError` (or `OSError`) and crash the app instead of returning `False` after logging. Consider catching these exceptions and treating them as non-retriable failures with a clear log message.
 
-- [ ] Resolved
+- [x] Resolved
 - Agree with problem statement: Y
 - Agree with solution: Y
 
@@ -16,7 +16,7 @@
 
 > `progress_repo` is only used as an enable/disable flag; the configured repo URL is never used to set up or validate the git remote, clone, etc.
 
-- [ ] Resolved
+- [x] Resolved
 - Agree with problem statement: Y
 - Agree with solution: N
 - Comment: The sync methods don't need to configure the remote themselves — that is Ansible's job. But the URL should appear in error messages when a sync fails, so the operator knows which repo the push/pull was targeting. Fix: when `_run_git()` logs a failure, also run `git remote get-url origin` and include the result in the error message. No URL validation or remote reconfiguration needed.
@@ -27,7 +27,7 @@
 
 > `skills_repo` is only used for truthiness; the repo URL is never used to configure/validate the git remote.
 
-- [ ] Resolved
+- [x] Resolved
 - Agree with problem statement: Y
 - Agree with solution: N
 - Comment: Same reasoning and same fix as #2. On failure, log the actual remote URL from `git remote get-url origin` so the operator can diagnose which repo was involved.
@@ -38,7 +38,7 @@
 
 > `_refine_skills()` catches a broad `Exception` and silently continues; this can hide real errors. Catch the specific expected exception(s) (e.g. `SkillNotFoundError`) and log unexpected exceptions so failures are diagnosable.
 
-- [ ] Resolved
+- [x] Resolved
 - Agree with problem statement: Y
 - Agree with solution: Y
 
@@ -48,7 +48,7 @@
 
 > `parse_interval()` uses `int(s[:-1])` for the d/h/m formats; non-numeric values like "xh" or an empty prefix like "m" will raise `ValueError` instead of `InvalidCadenceError`.
 
-- [ ] Resolved
+- [x] Resolved
 - Agree with problem statement: Y
 - Agree with solution: Y
 
@@ -58,7 +58,7 @@
 
 > If the progress file hasn't been created yet, `git add progress.md` will fail with a pathspec error. Consider checking for the file before adding, or skip commit/push if nothing to sync.
 
-- [ ] Resolved
+- [x] Resolved
 - Agree with problem statement: Y
 - Agree with solution: Y
 
@@ -68,7 +68,7 @@
 
 > Return values from `_run_git()` are ignored, so `sync_progress()` will continue to commit/push even after a failed `git add`/`commit`.
 
-- [ ] Resolved
+- [x] Resolved
 - Agree with problem statement: Y
 - Agree with solution: Y
 
@@ -78,7 +78,7 @@
 
 > `sync_skills()` also ignores `_run_git()` return values; if add/commit/push/pull fails, the method continues silently.
 
-- [ ] Resolved
+- [x] Resolved
 - Agree with problem statement: Y
 - Agree with solution: Y
 
@@ -88,7 +88,7 @@
 
 > The CLI prints pending check-ins but never clears them, so the same queued check-ins will be printed again on every subsequent CLI run.
 
-- [ ] Resolved
+- [x] Resolved
 - Agree with problem statement: Y
 - Agree with solution: Y
 
@@ -98,7 +98,7 @@
 
 > `reply()` reaches into `SkillsCache`'s private `_dir` and re-reads every skill file to infer `selected_topics` from `selected_skills` content. This is fragile and couples `CoachAgent` to `SkillsCache` internals. Prefer having `SkillsCache.select()` return topic identifiers alongside content (e.g. a `{topic: content}` mapping).
 
-- [ ] Resolved
+- [x] Resolved
 - Agree with problem statement: Y
 - Agree with solution: Y
 
@@ -108,7 +108,7 @@
 
 > This introduces a `MemoryStore` dependency into `SlackBot`. PLAN.md states the Slack bot "depends on CoachAgent only".
 
-- [ ] Resolved
+- [x] Resolved
 - Agree with problem statement: Y
 - Agree with solution: Y
 - Comment: Fix: `main.py` drains the queue from `MemoryStore` before starting the bot and passes the messages as a plain `list[str]`. `SlackBot.flush_pending_checkins` takes that list directly — no `MemoryStore` in the constructor or anywhere in `SlackBot`. This keeps both `CoachAgent` and `SlackBot` free of queue-management logic; the wiring layer handles startup sequencing.
@@ -119,7 +119,7 @@
 
 > `update_cadence()` reads/parses the config file without handling `FileNotFoundError` or `JSONDecodeError`, giving callers inconsistent low-level exceptions instead of `ConfigError`.
 
-- [ ] Resolved
+- [x] Resolved
 - Agree with problem statement: Y
 - Agree with solution: Y
 
@@ -129,6 +129,6 @@
 
 > `update_cadence()` assumes `self._job` is set; if called before `start()`, it will raise `AttributeError` at `self._job.reschedule(...)`. Add an explicit guard.
 
-- [ ] Resolved
+- [x] Resolved
 - Agree with problem statement: Y
 - Agree with solution: Y

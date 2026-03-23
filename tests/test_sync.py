@@ -15,10 +15,14 @@ def make_config(progress_repo=None, skills_repo=None, write_back=False):
     )
 
 
-def make_sync(tmp_path, config):
+def make_sync(tmp_path, config, with_progress=False):
     memory = MagicMock()
     skills = MagicMock()
     skills._dir = tmp_path / "skills"
+    if with_progress:
+        memory_dir = tmp_path / "memory"
+        memory_dir.mkdir(parents=True, exist_ok=True)
+        (memory_dir / "progress.md").write_text("# Progress\n")
     return RepoSync(memory, skills, config, base_path=tmp_path)
 
 
@@ -28,7 +32,7 @@ def make_sync(tmp_path, config):
 
 def test_sync_progress_runs_correct_git_commands(tmp_path):
     config = make_config(progress_repo="github.com/user/progress")
-    sync = make_sync(tmp_path, config)
+    sync = make_sync(tmp_path, config, with_progress=True)
 
     with patch("subprocess.run") as mock_run:
         mock_run.return_value = MagicMock(returncode=0)
@@ -107,7 +111,7 @@ def test_sync_skills_skips_when_no_repo_configured(tmp_path):
 
 def test_transient_failure_triggers_retry(tmp_path):
     config = make_config(progress_repo="github.com/user/progress")
-    sync = make_sync(tmp_path, config)
+    sync = make_sync(tmp_path, config, with_progress=True)
 
     call_count = 0
 
@@ -129,7 +133,7 @@ def test_transient_failure_triggers_retry(tmp_path):
 
 def test_permanent_failure_gives_up_and_does_not_raise(tmp_path):
     config = make_config(progress_repo="github.com/user/progress")
-    sync = make_sync(tmp_path, config)
+    sync = make_sync(tmp_path, config, with_progress=True)
 
     def always_fail(cmd, **kwargs):
         raise subprocess.CalledProcessError(1, cmd)
@@ -138,3 +142,13 @@ def test_permanent_failure_gives_up_and_does_not_raise(tmp_path):
         with patch("time.sleep"):
             # Should not raise — log and exit cleanly
             sync.sync_progress()
+
+
+def test_sync_progress_skips_when_progress_file_absent(tmp_path):
+    config = make_config(progress_repo="github.com/user/progress")
+    sync = make_sync(tmp_path, config)  # no with_progress
+
+    with patch("subprocess.run") as mock_run:
+        sync.sync_progress()
+
+    mock_run.assert_not_called()

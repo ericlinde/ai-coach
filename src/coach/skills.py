@@ -18,8 +18,8 @@ class SkillsCache:
             raise SkillNotFoundError(f"Skill not found: {topic}")
         return path.read_text()
 
-    def select(self, keywords: list[str]) -> list[str]:
-        results = []
+    def select(self, keywords: list[str]) -> dict[str, str]:
+        results = {}
         for path in self._dir.glob("*.md"):
             content = path.read_text()
             first_line = content.splitlines()[0] if content.strip() else ""
@@ -27,7 +27,7 @@ class SkillsCache:
                 kw.lower() in path.stem.lower() or kw.lower() in first_line.lower()
                 for kw in keywords
             ):
-                results.append(content)
+                results[path.stem] = content
         return results
 
     def update(self, topic: str, content: str) -> None:

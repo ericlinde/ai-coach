@@ -36,7 +36,7 @@ def test_select_matches_on_filename(tmp_path):
     cache = SkillsCache(tmp_path)
     results = cache.select(["mcp"])
     assert len(results) == 1
-    assert "Model Context Protocol" in results[0]
+    assert "Model Context Protocol" in results["mcp"]
 
 
 def test_select_matches_on_first_line_heading(tmp_path):
@@ -44,18 +44,18 @@ def test_select_matches_on_first_line_heading(tmp_path):
     cache = SkillsCache(tmp_path)
     results = cache.select(["safe"])
     assert len(results) == 1
-    assert "Safe Factories" in results[0]
+    assert "Safe Factories" in results["software-factory"]
 
 
-def test_select_returns_empty_list_when_no_match(tmp_path):
+def test_select_returns_empty_dict_when_no_match(tmp_path):
     write_skill(tmp_path, "mcp", "# MCP\ncontent")
     cache = SkillsCache(tmp_path)
-    assert cache.select(["nonexistent"]) == []
+    assert cache.select(["nonexistent"]) == {}
 
 
-def test_select_returns_empty_list_when_directory_empty(tmp_path):
+def test_select_returns_empty_dict_when_directory_empty(tmp_path):
     cache = SkillsCache(tmp_path)
-    assert cache.select(["anything"]) == []
+    assert cache.select(["anything"]) == {}
 
 
 def test_select_matches_multiple_keywords(tmp_path):
@@ -64,6 +64,8 @@ def test_select_matches_multiple_keywords(tmp_path):
     cache = SkillsCache(tmp_path)
     results = cache.select(["mcp", "review"])
     assert len(results) == 2
+    assert "mcp" in results
+    assert "code-review" in results
 
 
 def test_update_creates_new_file(tmp_path):

@@ -55,7 +55,14 @@ def update_cadence(config_path: Path, new_interval: str) -> None:
     parse_interval(new_interval)  # raises InvalidCadenceError on bad value
 
     config_path = Path(config_path)
-    data = json.loads(config_path.read_text())
+    if not config_path.exists():
+        raise ConfigError(f"Config file not found: {config_path}")
+
+    try:
+        data = json.loads(config_path.read_text())
+    except json.JSONDecodeError as e:
+        raise ConfigError(f"Invalid JSON in config file: {e}") from e
+
     data["checkin_frequency"] = new_interval
 
     tmp_path = config_path.with_suffix(".json.tmp")

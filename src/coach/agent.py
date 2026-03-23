@@ -1,8 +1,11 @@
 import datetime
+import logging
 from typing import Callable
 
+log = logging.getLogger(__name__)
+
 from .memory import MemoryStore
-from .skills import SkillsCache
+from .skills import SkillsCache, SkillNotFoundError
 
 _POSITIVE_SIGNALS = ("worked well", "great explanation", "that helped", "makes sense",
                      "very helpful", "perfect explanation", "that was clear")
@@ -66,14 +69,9 @@ class CoachAgent:
     def reply(self, user_message: str) -> str:
         feedback_signal = _detect_feedback(user_message)
         keywords = _extract_keywords(user_message)
-        selected_skills = self._skills.select(keywords)
-        selected_topics = [
-            p.stem
-            for p in (self._skills._dir).glob("*.md")
-            if p.read_text() in selected_skills
-        ]
+        selected = self._skills.select(keywords)  # dict[topic, content]
 
-        system = self._build_system(selected_skills)
+        system = self._build_system(list(selected.values()))
         messages = [{"role": "user", "content": user_message}]
         response = self._llm(system, messages)
 
@@ -86,7 +84,7 @@ class CoachAgent:
         if feedback_signal and self._last_selected_topics:
             self._refine_skills(self._last_selected_topics, feedback_signal)
 
-        self._last_selected_topics = selected_topics
+        self._last_selected_topics = list(selected.keys())
         return response
 
     def checkin(self) -> str:
@@ -122,7 +120,11 @@ class CoachAgent:
         for topic in topics:
             try:
                 current = self._skills.load(topic)
+            except SkillNotFoundError:
+                log.warning("_refine_skills: skill %r not found, skipping", topic)
+                continue
             except Exception:
+                log.exception("_refine_skills: unexpected error loading skill %r", topic)
                 continue
             system = _SKILL_REFINE_SYSTEM.format(sentiment=sentiment)
             messages = [{"role": "user", "content": current}]

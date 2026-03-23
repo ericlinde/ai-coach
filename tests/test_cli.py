@@ -86,3 +86,25 @@ def test_no_checkins_prints_nothing_extra(capsys, monkeypatch):
 
     out = capsys.readouterr().out
     assert "Check in" not in out
+
+
+def test_pending_checkins_cleared_after_display(monkeypatch):
+    agent = make_agent()
+    memory = make_memory(checkins=["Check in #1"])
+    inputs = iter(["exit"])
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+
+    run(agent, memory)
+
+    memory.clear_pending_checkins.assert_called_once()
+
+
+def test_checkins_not_cleared_when_none_pending(monkeypatch):
+    agent = make_agent()
+    memory = make_memory(checkins=[])
+    inputs = iter(["exit"])
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+
+    run(agent, memory)
+
+    memory.clear_pending_checkins.assert_not_called()

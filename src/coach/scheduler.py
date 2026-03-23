@@ -19,19 +19,22 @@ def parse_interval(interval_str: str) -> int:
     """Parse a cadence string to seconds. Raises InvalidCadenceError if invalid."""
     s = interval_str.strip().lower()
 
-    if s == "daily":
-        seconds = 86400
-    elif s == "hourly":
-        seconds = 3600
-    elif s.endswith("d"):
-        seconds = int(s[:-1]) * 86400
-    elif s.endswith("h"):
-        seconds = int(s[:-1]) * 3600
-    elif s.endswith("m"):
-        seconds = int(s[:-1]) * 60
-    elif s.isdigit():
-        seconds = int(s) * 60  # bare integer = minutes
-    else:
+    try:
+        if s == "daily":
+            seconds = 86400
+        elif s == "hourly":
+            seconds = 3600
+        elif s.endswith("d"):
+            seconds = int(s[:-1]) * 86400
+        elif s.endswith("h"):
+            seconds = int(s[:-1]) * 3600
+        elif s.endswith("m"):
+            seconds = int(s[:-1]) * 60
+        elif s.isdigit():
+            seconds = int(s) * 60  # bare integer = minutes
+        else:
+            raise InvalidCadenceError(f"Unrecognised cadence format: {interval_str!r}")
+    except ValueError:
         raise InvalidCadenceError(f"Unrecognised cadence format: {interval_str!r}")
 
     if seconds < _MIN_SECONDS:
@@ -78,6 +81,8 @@ class Scheduler:
         new_seconds = parse_interval(new_interval)  # validate first
 
         with self._lock:
+            if self._job is None:
+                raise RuntimeError("Scheduler has not been started — call start() first")
             if new_seconds == self._current_seconds:
                 return
             trigger = IntervalTrigger(seconds=new_seconds)
