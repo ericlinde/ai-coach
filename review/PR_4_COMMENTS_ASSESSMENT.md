@@ -17,9 +17,9 @@
 > `progress_repo` is only used as an enable/disable flag; the configured repo URL is never used to set up or validate the git remote, clone, etc.
 
 - [ ] Resolved
-- Agree with problem statement: N
+- Agree with problem statement: Y
 - Agree with solution: N
-- Comment: This is intentional. The URL is consumed by Ansible at deploy time to clone the repo and configure the remote on the persistent volume. The runtime code only checks whether `progress_repo` is set (i.e. the feature is enabled for this instance). Using the URL at runtime to set up remotes would duplicate Ansible's job and break the architecture. The code should instead have a comment explaining this, and the field name is accurate — it IS the repo URL, just used at a different layer.
+- Comment: The sync methods don't need to configure the remote themselves — that is Ansible's job. But the URL should appear in error messages when a sync fails, so the operator knows which repo the push/pull was targeting. Fix: when `_run_git()` logs a failure, also run `git remote get-url origin` and include the result in the error message. No URL validation or remote reconfiguration needed.
 
 ---
 
@@ -28,9 +28,9 @@
 > `skills_repo` is only used for truthiness; the repo URL is never used to configure/validate the git remote.
 
 - [ ] Resolved
-- Agree with problem statement: N
+- Agree with problem statement: Y
 - Agree with solution: N
-- Comment: Same reasoning as #2. Ansible configures the remote; the runtime only checks presence. A clarifying comment in the code is warranted, but no behaviour change needed.
+- Comment: Same reasoning and same fix as #2. On failure, log the actual remote URL from `git remote get-url origin` so the operator can diagnose which repo was involved.
 
 ---
 
@@ -110,8 +110,8 @@
 
 - [ ] Resolved
 - Agree with problem statement: Y
-- Agree with solution: partial
-- Comment: The problem is real. The suggested fix ("move pending-checkin flushing outside of SlackBot") is the right direction, but needs a concrete form. The cleanest approach is: `main.py` drains the queue before starting the bot and passes the messages directly, keeping `SlackBot` free of `MemoryStore`. Alternatively, `CoachAgent` could expose a `get_and_clear_pending_checkins()` method so `SlackBot` only ever talks to the agent. Either way, `MemoryStore` should not appear in `SlackBot`'s constructor.
+- Agree with solution: Y
+- Comment: Fix: `main.py` drains the queue from `MemoryStore` before starting the bot and passes the messages as a plain `list[str]`. `SlackBot.flush_pending_checkins` takes that list directly — no `MemoryStore` in the constructor or anywhere in `SlackBot`. This keeps both `CoachAgent` and `SlackBot` free of queue-management logic; the wiring layer handles startup sequencing.
 
 ---
 
